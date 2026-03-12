@@ -3,6 +3,7 @@ import 'wrong_answer.dart';
 import 'finish.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/question_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class QuestionScreen extends StatefulWidget {
   final String difficulty;
@@ -27,25 +28,27 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   Future<void> _loadQuestions() async {
-  final data = await supabase
-      .from('questions')
-      .select()
-      .eq('difficulty', widget.difficulty);
+    final data = await supabase
+        .from('questions')
+        .select()
+        .eq('difficulty', widget.difficulty);
 
-  List<Question> loaded =
-      (data as List).map((q) => Question.fromMap(q)).toList();
+    List<Question> loaded = (data as List)
+        .map((q) => Question.fromMap(q))
+        .toList();
 
-  loaded.shuffle();
-  loaded = loaded.take(10).toList();
+    loaded.shuffle();
+    loaded = loaded.take(10).toList();
 
-  setState(() {
-    _quizQuestions = loaded;
-    _loading = false;
-  });
-}
+    setState(() {
+      _quizQuestions = loaded;
+      _loading = false;
+    });
+  }
 
   void _submitAnswer(int selectedIndex) {
-    if (selectedIndex == _quizQuestions[_currentQuestionIndex].correctAnswerIndex) {
+    if (selectedIndex ==
+        _quizQuestions[_currentQuestionIndex].correctAnswerIndex) {
       if (_currentQuestionIndex < _quizQuestions.length - 1) {
         setState(() {
           _currentQuestionIndex++;
@@ -64,67 +67,97 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  if (_loading) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    const primary = Color(0xFF0175C2);
 
-  if (_quizQuestions.isEmpty) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Nenhuma pergunta encontrada :("),
-      ),
-    );
-  }
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-  final currentQuestion = _quizQuestions[_currentQuestionIndex];
+    if (_quizQuestions.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Text("Nenhuma pergunta encontrada")),
+      );
+    }
+
+    final currentQuestion = _quizQuestions[_currentQuestionIndex];
 
     return Scaffold(
-      backgroundColor: Colors.deepPurple[50],
+      backgroundColor: const Color(0xFFEFF7FF),
       appBar: AppBar(
-        title: Text('Questão ${_currentQuestionIndex + 1} de ${_quizQuestions.length}'),
-        backgroundColor: Colors.deepPurple,
+        title: Text(
+          "Questão ${_currentQuestionIndex + 1} / ${_quizQuestions.length}",
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: primary,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              currentQuestion.text,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500),
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 25,
+                color: Colors.black12,
+                offset: Offset(0, 10),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-
-            ...currentQuestion.options.asMap().entries.map((entry) {
-              int index = entry.key;
-              String optionText = entry.value;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: ElevatedButton(
-                  onPressed: () => _submitAnswer(index),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: Text(optionText),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                currentQuestion.text,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: primary,
                 ),
-              );
-            }),
-          ],
+              ),
+
+              const SizedBox(height: 30),
+
+              ...currentQuestion.options.asMap().entries.map((entry) {
+                int index = entry.key;
+                String optionText = entry.value;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: InkWell(
+                    onTap: () => _submitAnswer(index),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 18,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: primary.withOpacity(0.25)),
+                        color: Colors.white,
+                      ),
+                      child: Text(
+                        optionText,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

@@ -28,89 +28,143 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primary = const Color(0xFF0175C2); // Dart blue
+
     return Scaffold(
-      backgroundColor: Colors.deepPurple[50],
+      backgroundColor: const Color(0xFFEFF7FF),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Quiz de Flutter/Dart',
-              style: GoogleFonts.comicRelief(
-                textStyle: Theme.of(context).textTheme.headlineMedium,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 25,
+                color: Colors.black12,
+                offset: Offset(0, 10),
               ),
-            ),
-
-            const SizedBox(height: 30),
-
-            const Text("Escolha a dificuldade", style: TextStyle(fontSize: 18)),
-
-            const SizedBox(height: 10),
-
-            RadioGroup<Difficulty>(
-              groupValue: _selectedDifficulty,
-              onChanged: (Difficulty? value) {
-                setState(() {
-                  _selectedDifficulty = value!;
-                });
-              },
-              child: Column(
-                children: const [
-                  RadioListTile(title: Text("FÁCIL"), value: Difficulty.easy),
-                  RadioListTile(title: Text("MÉDIO"), value: Difficulty.medium),
-                  RadioListTile(title: Text("DIFÍCIL"), value: Difficulty.hard),
-                ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Quiz Flutter/Dart",
+                style: GoogleFonts.poppins(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                  color: primary,
+                ),
               ),
-            ),
 
-            const SizedBox(height: 30),
+              const SizedBox(height: 8),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QuestionScreen(
-                      difficulty: difficultyToDb(_selectedDifficulty),
+              Text(
+                "Escolha a dificuldade",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              RadioGroup<Difficulty>(
+                groupValue: _selectedDifficulty,
+                onChanged: (Difficulty? value) {
+                  setState(() {
+                    _selectedDifficulty = value!;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: const [
+                    Column(
+                      children: [
+                        Radio(value: Difficulty.easy),
+                        Text("FÁCIL"),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Radio(value: Difficulty.medium),
+                        Text("MÉDIO"),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Radio(value: Difficulty.hard),
+                        Text("DIFÍCIL"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QuestionScreen(
+                          difficulty: difficultyToDb(_selectedDifficulty),
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 15,
-                ),
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(fontSize: 20),
-              ),
-              child: const Text('Começar o Quiz'),
-            ),
-
-            const SizedBox(height: 30),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QuestionListScreen(),
+                  child: Text(
+                    "Começar o Quiz",
+                    style: GoogleFonts.poppins(fontSize: 18),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 15,
                 ),
-                backgroundColor: Colors.grey,
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(fontSize: 15),
               ),
-              child: const Text('Gerenciar perguntas'),
-            ),
-          ],
+
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const QuestionListScreen(),
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Gerenciar perguntas",
+                    style: GoogleFonts.poppins(
+                      color: primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
