@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'wrong_answer.dart';
 import 'finish.dart';
-import 'question_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/question_model.dart';
 
 class QuestionScreen extends StatefulWidget {
-  const QuestionScreen({super.key});
+  final String difficulty;
+
+  const QuestionScreen({super.key, required this.difficulty});
 
   @override
   State<QuestionScreen> createState() => _QuestionScreenState();
@@ -12,14 +15,34 @@ class QuestionScreen extends StatefulWidget {
 
 class _QuestionScreenState extends State<QuestionScreen> {
   int _currentQuestionIndex = 0;
-  late List<Question> _quizQuestions;
+  List<Question> _quizQuestions = [];
+  bool _loading = true;
+
+  final supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
-    _quizQuestions = List<Question>.from(allQuestions)..shuffle();
-    _quizQuestions = _quizQuestions.take(10).toList();
+    _loadQuestions();
   }
+
+  Future<void> _loadQuestions() async {
+  final data = await supabase
+      .from('questions')
+      .select()
+      .eq('difficulty', widget.difficulty);
+
+  List<Question> loaded =
+      (data as List).map((q) => Question.fromMap(q)).toList();
+
+  loaded.shuffle();
+  loaded = loaded.take(10).toList();
+
+  setState(() {
+    _quizQuestions = loaded;
+    _loading = false;
+  });
+}
 
   void _submitAnswer(int selectedIndex) {
     if (selectedIndex == _quizQuestions[_currentQuestionIndex].correctAnswerIndex) {
@@ -41,9 +64,23 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final currentQuestion = _quizQuestions[_currentQuestionIndex];
+@override
+Widget build(BuildContext context) {
+  if (_loading) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  if (_quizQuestions.isEmpty) {
+    return const Scaffold(
+      body: Center(
+        child: Text("Nenhuma pergunta encontrada :("),
+      ),
+    );
+  }
+
+  final currentQuestion = _quizQuestions[_currentQuestionIndex];
 
     return Scaffold(
       backgroundColor: Colors.deepPurple[50],

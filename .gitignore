@@ -12,6 +12,9 @@
 .swiftpm/
 migrate_working_dir/
 
+# Supabase api secrets
+lib/supabase/secrets.dart
+
 # IntelliJ related
 *.iml
 *.ipr
